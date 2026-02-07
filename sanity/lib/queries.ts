@@ -1,5 +1,5 @@
 import { client } from '@/sanity/lib/client';
-import { About } from '@/types';
+import { Artwork, About } from '@/types';
 
 const aboutQuery = `*[_type == "about"][0] {
   _id,
@@ -12,7 +12,27 @@ const aboutQuery = `*[_type == "about"][0] {
   awards[] | order(year desc)
 }`;
 
+// GROQ 쿼리들
+const artworkQuery = `*[_type == "artwork"] | order(year desc, _createdAt desc) {
+  _id,
+  _createdAt,
+  title,
+  slug,
+  images,
+  year,
+  category,
+  medium,
+  dimensions,
+  description,
+  featured
+}`;
+
 // About 정보 가져오기
 export async function getAbout(): Promise<About | null> {
   return await client.fetch(aboutQuery);
+}
+
+// 모든 작품 가져오기
+export async function getArtworks(): Promise<Artwork[]> {
+  return await client.fetch(artworkQuery);
 }
