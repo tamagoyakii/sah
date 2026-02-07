@@ -27,6 +27,20 @@ const artworkQuery = `*[_type == "artwork"] | order(year desc, _createdAt desc) 
   featured
 }`;
 
+const artworkBySlugQuery = `*[_type == "artwork" && slug.current == $slug][0] {
+  _id,
+  _createdAt,
+  title,
+  slug,
+  images,
+  year,
+  category,
+  medium,
+  dimensions,
+  description,
+  featured
+}`;
+
 // About 정보 가져오기
 export async function getAbout(): Promise<About | null> {
   return await client.fetch(aboutQuery);
@@ -35,4 +49,9 @@ export async function getAbout(): Promise<About | null> {
 // 모든 작품 가져오기
 export async function getArtworks(): Promise<Artwork[]> {
   return await client.fetch(artworkQuery);
+}
+
+// slug로 작품 하나 가져오기
+export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
+  return await client.fetch(artworkBySlugQuery, { slug });
 }
