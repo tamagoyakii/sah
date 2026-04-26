@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArtworkBySlug } from '@/sanity/lib/queries';
 import { urlFor } from '@/sanity/lib/image';
@@ -13,7 +14,12 @@ export async function generateMetadata({
 
   if (!artwork) return {};
 
-  const description = [artwork.year, artwork.category, artwork.medium, artwork.dimensions]
+  const description = [
+    artwork.year,
+    artwork.category,
+    artwork.medium,
+    artwork.dimensions,
+  ]
     .filter(Boolean)
     .join(', ');
 
@@ -52,23 +58,31 @@ export default async function ArtworkDetailPage({
           </p>
         </header>
 
-        <section aria-label='artwork images' className='flex flex-wrap gap-6 items-center'>
+        <section
+          aria-label='artwork images'
+          className='flex flex-wrap gap-6 items-center'
+        >
           {artwork.images
             ?.filter((image) => image.asset?._ref)
             .map((image, index) => (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
+              <Image
                 key={index}
                 src={urlFor(image).quality(90).url()}
                 alt={image.alt || `${artwork.title} - ${index + 1}`}
-                className='max-w-5xl w-full'
-                loading={index === 0 ? 'eager' : 'lazy'}
+                width={1200}
+                height={800}
+                className='max-w-5xl w-full h-auto'
+                priority={index === 0}
+                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1024px'
               />
             ))}
         </section>
 
         {artwork.description && (
-          <section aria-label='artwork description' className='text-sm leading-relaxed max-w-3xl break-words'>
+          <section
+            aria-label='artwork description'
+            className='text-sm leading-relaxed max-w-3xl wrap-break-word whitespace-pre-line'
+          >
             {artwork.description}
           </section>
         )}
