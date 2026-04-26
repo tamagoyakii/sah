@@ -9,7 +9,7 @@ export const aboutType = defineType({
       name: 'teamName',
       title: 'Team Name',
       type: 'string',
-      initialValue: 's.a.h',
+      initialValue: 'sah',
       validation: (rule) => rule.required(),
     }),
     defineField({

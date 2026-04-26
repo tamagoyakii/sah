@@ -4,8 +4,8 @@ import Footer from '@/components/Footer';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SAH - Artist Portfolio',
-  description: 'Portfolio website for artist SAH',
+  title: 'sah',
+  description: 'Portfolio website for artist sah',
 };
 
 export default function RootLayout({

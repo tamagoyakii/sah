@@ -10,7 +10,7 @@ export default async function WorksPage() {
     return (
       <div className='max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
         <p className='text-gray-600 text-center py-12'>
-          No artworks available. Please add them in the Studio.
+          sah coming soon.
         </p>
       </div>
     );
