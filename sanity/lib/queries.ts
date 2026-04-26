@@ -41,17 +41,19 @@ const artworkBySlugQuery = `*[_type == "artwork" && slug.current == $slug][0] {
   featured
 }`;
 
+const revalidate = 60;
+
 // About 정보 가져오기
 export async function getAbout(): Promise<About | null> {
-  return await client.fetch(aboutQuery);
+  return await client.fetch(aboutQuery, {}, { next: { revalidate } });
 }
 
 // 모든 작품 가져오기
 export async function getArtworks(): Promise<Artwork[]> {
-  return await client.fetch(artworkQuery);
+  return await client.fetch(artworkQuery, {}, { next: { revalidate } });
 }
 
 // slug로 작품 하나 가져오기
 export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
-  return await client.fetch(artworkBySlugQuery, { slug });
+  return await client.fetch(artworkBySlugQuery, { slug }, { next: { revalidate } });
 }

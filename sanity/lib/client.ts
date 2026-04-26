@@ -6,5 +6,5 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: false, // false for fresh data, true for faster cached responses
+  useCdn: true,
 })
