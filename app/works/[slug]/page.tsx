@@ -1,6 +1,34 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getArtworkBySlug } from '@/sanity/lib/queries';
 import { urlFor } from '@/sanity/lib/image';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const artwork = await getArtworkBySlug(slug);
+
+  if (!artwork) return {};
+
+  const description = [artwork.year, artwork.category, artwork.medium, artwork.dimensions]
+    .filter(Boolean)
+    .join(', ');
+
+  return {
+    title: artwork.title,
+    description: `${artwork.title} — ${description}`,
+    openGraph: {
+      title: `${artwork.title} | sah`,
+      description,
+      images: artwork.images?.[0]
+        ? [{ url: urlFor(artwork.images[0]).width(1200).height(630).url() }]
+        : undefined,
+    },
+  };
+}
 
 export default async function ArtworkDetailPage({
   params,

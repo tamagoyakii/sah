@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import { PortableText } from '@portabletext/react';
 import { getAbout } from '@/sanity/lib/queries';
+
+export const metadata: Metadata = {
+  title: 'about',
+  description: 'about sah — biography, exhibitions, and contact',
+};
 
 export default async function AboutPage() {
   const about = await getAbout();

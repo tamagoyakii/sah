@@ -1,7 +1,13 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getArtworks } from '@/sanity/lib/queries';
 import { urlFor } from '@/sanity/lib/image';
+
+export const metadata: Metadata = {
+  title: 'works',
+  description: 'sculptures and installations by sah',
+};
 
 export default async function WorksPage() {
   const artworks = await getArtworks();
