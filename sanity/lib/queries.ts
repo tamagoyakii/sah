@@ -13,13 +13,13 @@ const aboutQuery = `*[_type == "about"][0] {
 }`;
 
 // GROQ 쿼리들
-const artworkQuery = `*[_type == "artwork"] | order(year desc, _createdAt desc) {
+const artworkQuery = `*[_type == "artwork"] | order(date desc, _createdAt desc) {
   _id,
   _createdAt,
   title,
   slug,
   images,
-  year,
+  date,
   category,
   medium,
   dimensions,
@@ -33,7 +33,7 @@ const artworkBySlugQuery = `*[_type == "artwork" && slug.current == $slug][0] {
   title,
   slug,
   images,
-  year,
+  date,
   category,
   medium,
   dimensions,
@@ -55,5 +55,9 @@ export async function getArtworks(): Promise<Artwork[]> {
 
 // slug로 작품 하나 가져오기
 export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
-  return await client.fetch(artworkBySlugQuery, { slug }, { next: { revalidate } });
+  return await client.fetch(
+    artworkBySlugQuery,
+    { slug },
+    { next: { revalidate } },
+  );
 }

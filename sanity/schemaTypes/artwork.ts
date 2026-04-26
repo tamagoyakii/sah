@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import { defineField, defineType } from 'sanity';
 
 export const artworkType = defineType({
   name: 'artwork',
@@ -43,10 +43,11 @@ export const artworkType = defineType({
       validation: (rule) => rule.required().min(1),
     }),
     defineField({
-      name: 'year',
-      title: 'Year',
-      type: 'number',
-      validation: (rule) => rule.required().min(1900).max(new Date().getFullYear() + 1),
+      name: 'date',
+      title: 'Date',
+      type: 'date',
+      description: '제작일. 사이트에는 연도만 표시되며, 정렬 기준이 됩니다.',
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'category',
@@ -93,16 +94,16 @@ export const artworkType = defineType({
   preview: {
     select: {
       title: 'title',
-      year: 'year',
+      date: 'date',
       media: 'images.0',
     },
     prepare(selection) {
-      const { title, year, media } = selection
+      const { title, date, media } = selection;
       return {
         title,
-        subtitle: year ? `${year}` : 'No year',
+        subtitle: date ? date.slice(0, 4) : '',
         media,
-      }
+      };
     },
   },
-})
+});

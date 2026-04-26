@@ -14,8 +14,9 @@ export async function generateMetadata({
 
   if (!artwork) return {};
 
+  const year = artwork.date?.slice(0, 4);
   const description = [
-    artwork.year,
+    year,
     artwork.category,
     artwork.medium,
     artwork.dimensions,
@@ -54,7 +55,7 @@ export default async function ArtworkDetailPage({
         <header>
           <h1 className='text-4xl font-bold mb-2'>{artwork.title}</h1>
           <p className='text-sm text-gray-600'>
-            {`${artwork.year} ${artwork.category} ${artwork.medium} ${artwork.dimensions}`}
+            {`${artwork.date.slice(0, 4)} ${artwork.category} ${artwork.medium} ${artwork.dimensions}`}
           </p>
         </header>
 

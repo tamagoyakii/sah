@@ -15,22 +15,23 @@ export default async function WorksPage() {
   if (artworks.length === 0) {
     return (
       <div className='max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
-        <p className='text-gray-600 text-center py-12'>
-          sah coming soon.
-        </p>
+        <p className='text-gray-600 text-center py-12'>sah coming soon.</p>
       </div>
     );
   }
 
   return (
     <section className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-      <ul className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' role='list'>
+      <ul
+        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+        role='list'
+      >
         {artworks.map((artwork) => (
           <li key={artwork._id}>
             <Link
               href={`/works/${artwork.slug.current}`}
               className='group relative aspect-square overflow-hidden bg-gray-100 block focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 outline-none'
-              aria-label={`${artwork.title}, ${artwork.year}`}
+              aria-label={`${artwork.title}, ${artwork.date.slice(0, 4)}`}
             >
               {artwork.images && artwork.images[0] && (
                 <Image
@@ -44,7 +45,7 @@ export default async function WorksPage() {
               <div className='absolute inset-0 flex flex-col justify-center p-6 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300'>
                 <h2 className='text-sm font-bold'>{artwork.title}</h2>
                 <div className='text-sm'>
-                  <p>{artwork.year}</p>
+                  <p>{artwork.date.slice(0, 4)}</p>
                   {artwork.category && (
                     <p className='capitalize'>{artwork.category}</p>
                   )}
