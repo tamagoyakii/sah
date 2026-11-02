@@ -26,36 +26,40 @@ export default async function WorksPage() {
         className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
         role='list'
       >
-        {artworks.map((artwork) => (
-          <li key={artwork._id}>
-            <Link
-              href={`/works/${artwork.slug.current}`}
-              className='group relative aspect-square overflow-hidden bg-gray-100 block focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 outline-none'
-              aria-label={`${artwork.title}, ${artwork.date.slice(0, 4)}`}
-            >
-              {artwork.images && artwork.images[0] && (
-                <Image
-                  src={urlFor(artwork.images[0]).width(800).height(800).url()}
-                  alt={artwork.images[0].alt || artwork.title}
-                  fill
-                  className='object-cover transition-all duration-300 group-hover:opacity-30 group-focus-visible:opacity-30'
-                />
-              )}
+        {artworks.map((artwork) => {
+          const image = artwork.images?.find((image) => image.asset?._ref);
 
-              <div className='absolute inset-0 flex flex-col justify-center p-6 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300'>
-                <h2 className='text-sm font-bold'>{artwork.title}</h2>
-                <div className='text-sm'>
-                  <p>{artwork.date.slice(0, 4)}</p>
-                  {artwork.category && (
-                    <p className='capitalize'>{artwork.category}</p>
-                  )}
-                  {artwork.medium && <p>{artwork.medium}</p>}
-                  {artwork.dimensions && <p>{artwork.dimensions}</p>}
+          return (
+            <li key={artwork._id}>
+              <Link
+                href={`/works/${artwork.slug.current}`}
+                className='group relative aspect-square overflow-hidden bg-gray-100 block focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 outline-none'
+                aria-label={`${artwork.title}, ${artwork.date.slice(0, 4)}`}
+              >
+                {image && (
+                  <Image
+                    src={urlFor(image).width(800).height(800).url()}
+                    alt={image.alt || artwork.title}
+                    fill
+                    className='object-cover transition-all duration-300 group-hover:opacity-30 group-focus-visible:opacity-30'
+                  />
+                )}
+
+                <div className='absolute inset-0 flex flex-col justify-center p-6 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300'>
+                  <h2 className='text-sm font-bold'>{artwork.title}</h2>
+                  <div className='text-sm'>
+                    <p>{artwork.date.slice(0, 4)}</p>
+                    {artwork.category && (
+                      <p className='capitalize'>{artwork.category}</p>
+                    )}
+                    {artwork.medium && <p>{artwork.medium}</p>}
+                    {artwork.dimensions && <p>{artwork.dimensions}</p>}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

@@ -14,6 +14,7 @@ export async function generateMetadata({
 
   if (!artwork) return {};
 
+  const image = artwork.images?.find((image) => image.asset?._ref);
   const year = artwork.date?.slice(0, 4);
   const description = [
     year,
@@ -30,8 +31,8 @@ export async function generateMetadata({
     openGraph: {
       title: `${artwork.title} | sah`,
       description,
-      images: artwork.images?.[0]
-        ? [{ url: urlFor(artwork.images[0]).width(1200).height(630).url() }]
+      images: image
+        ? [{ url: urlFor(image).width(1200).height(630).url() }]
         : undefined,
     },
   };

@@ -5,8 +5,8 @@ export interface Artwork {
   slug: {
     current: string;
   };
-  images: Array<{
-    asset: {
+  images?: Array<{
+    asset?: {
       _ref: string;
       _type: string;
     };
