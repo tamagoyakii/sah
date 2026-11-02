@@ -10,7 +10,7 @@
 
 - [x] 1. Add regression tests for an empty first image followed by a valid image, no valid images, and detail metadata. Verify failures, implement image selection, then run tests and production build.
 - [x] 2. Back up development artwork documents. Set missing dates from existing years using January 1 as the year-only sorting convention, preserve year fields, and use revision guards. Verify all three documents and a development build.
-- [ ] 3. Inspect Amplify authentication, branches, environment variables, and deployment logs. Separate development dataset if access permits. Verify deployment before cache invalidation; record any access blocker without inventing results.
+- [x] 3. Inspect Amplify authentication, branches, environment variables, and deployment logs. Separate development dataset if access permits. Verify deployment before cache invalidation; record any access blocker without inventing results.
 - [x] 4. Review the diff and run final checks. Keep the local server running and report code, CMS, and deployment status separately.
 
 ## Review focus
@@ -27,4 +27,4 @@
 - Production dataset build: passed; `next start` list displayed 14 artworks and Flash detail/OG rendered correctly.
 - Development dataset build: passed; local list displayed 3 artworks and cucumber detail/OG rendered with development image URLs.
 - Independent review: no actionable correctness findings.
-- AWS console redirects to sign-in; no CLI credentials available. Branch environment inspection, remote deployment and cache verification remain pending user login. No remote deployment changes made.
+- AWS console access confirmed via Chrome after user login. Develop override corrected to development; existing console build spec retained. Commit 2b1fd26 deployed successfully to develop (deployment 11) and main (final deployment 4, same commit). Public development/production list, detail, images and OG verified. Both development and final production caches transitioned STALE → HIT → CloudFront HIT. Production was redeployed once to replace a runtime with socket errors; no explicit cache-clearing option was offered. Next.js 16 remains outside AWS’s documented 12–15 range; no version change was made.

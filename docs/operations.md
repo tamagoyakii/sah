@@ -5,7 +5,7 @@ The frontend uses Next.js; content is stored in Sanity project `apwu4we2`.
 | Environment | Frontend | Sanity dataset |
 | --- | --- | --- |
 | Local | `http://localhost:3000` (`npm run dev`) | `development` |
-| Develop | `https://develop.d1e1kahcnr7oi1.amplifyapp.com` | Set branch override to `development` in Amplify |
+| Develop | `https://develop.d1e1kahcnr7oi1.amplifyapp.com` | `development` (Amplify branch override) |
 | Production | `https://sahhhhh.com` / `https://main.d1e1kahcnr7oi1.amplifyapp.com` | `production` |
 
 ## Local setup and verification
@@ -34,3 +34,13 @@ On 2026-11-02, three development documents were migrated: 오이 → `2025-01-01
 Both public deployments displayed obsolete `test0` / `test1` entries and production image URLs. The `test0` detail link rendered 404. Direct Sanity queries returned 14 production artworks and three development artworks. Production artwork Flash had an empty first image item; this caused `/works` prerendering and detail metadata to throw. The fix skips image items without an asset reference. The production CMS document is retained unchanged.
 
 AWS credentials are not stored in this repository. Console access is required to confirm deployed commits, branch variables, regeneration errors, and deployment success; local build success alone does not prove the public deployment was updated.
+
+## Amplify recovery on 2026-11-02
+
+Console inspection confirmed the last development deployment (10) succeeded on May 1, 2026 at commit `23922a3`. No newer failed deployment existed; content regeneration failure remains a separate runtime diagnosis. The develop dataset override was incorrectly set to production and has been changed to development. The existing console build spec runs `npm ci --cache .npm --prefer-offline`, then `npm run build`, publishes `.next`, and caches `.next/cache` and `.npm`. No build spec change was needed before the first validation deployment.
+
+Commit `2b1fd26` was fast-forwarded to remote develop, starting Amplify deployment 11. Development deployment 11 succeeded in 2 minutes 52 seconds. The public list returned exactly the three development slugs, and cucumber detail/OG used development assets. The same commit was then fast-forwarded to remote main, starting production deployment 3. Production deployment 3 succeeded in 2 minutes 46 seconds. The public custom domain and main Amplify domain both returned 14 artworks. All 14 thumbnails and the Flash detail image loaded in the browser, and Flash OG metadata referenced the valid image.
+
+Development ISR was checked after expiry: responses progressed from STALE to HIT and then CloudFront HIT, preserving the correct three artworks. No manual cache invalidation was performed. Production deployment 3 initially served the corrected pages, but expired requests remained STALE and CloudWatch showed `UND_ERR_SOCKET` fetch failures. The same commit was redeployed as production deployment 4 (2 minutes 36 seconds) to replace the runtime; no explicit clear-cache option was offered. After deployment 4, production progressed STALE → HIT → CloudFront HIT while retaining all 14 artworks. The deployed application commit on both main and develop is `2b1fd26500c45e74df0e3078202f96ad7bdff394`.
+
+AWS currently documents managed Next.js support through version 15 ([support matrix](https://docs.aws.amazon.com/amplify/latest/userguide/ssr-amplify-support.html)); this project remains on 16.1.1. No framework change was made because the verified deployment and ISR checks passed after runtime replacement. This test does not guarantee future upstream network availability. If stale content recurs, inspect Hosting compute logs before deciding on a compatibility migration.
