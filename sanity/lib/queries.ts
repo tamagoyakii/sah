@@ -53,8 +53,15 @@ export async function getArtworks(): Promise<Artwork[]> {
   return await client.fetch(artworkQuery, {}, { next: { revalidate } });
 }
 
-// slug로 작품 하나 가져오기
-export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
+// Next.js 경로에서 전달된 slug를 한 번 디코딩해 작품 조회하기
+export async function getArtworkBySlug(encodedSlug: string): Promise<Artwork | null> {
+  let slug: string;
+  try {
+    slug = decodeURIComponent(encodedSlug);
+  } catch {
+    return null;
+  }
+
   return await client.fetch(
     artworkBySlugQuery,
     { slug },

@@ -28,8 +28,8 @@ const artwork = {
   date: '2024-05-03', category: 'sculpture',
 };
 
-function loadPage(file, images) {
-  const fixture = { ...artwork, images };
+function loadPage(file, images, slug = 'flash') {
+  const fixture = { ...artwork, images, slug: { current: slug } };
   const { outputFiles } = buildSync({
     stdin: {
       contents: `export const getArtworks = async () => [${JSON.stringify(fixture)}];
@@ -94,4 +94,44 @@ test('valid first image retains its thumbnail and OG image', async () => {
   const detail = loadPage('app/works/[slug]/page.tsx', [validImage]);
   const metadata = await detail.generateMetadata({ params: Promise.resolve({ slug: 'flash' }) });
   assert.match(metadata.openGraph.images[0].url, /83dc55ebafcf79ac74346ecfb86b130955c69194/);
+});
+
+test('listing encodes literal percent signs in a stored slug', async () => {
+  const page = loadPage('app/works/page.tsx', [validImage], '100% real');
+  assert.match(render(await page.default()), /href="\/works\/100%25%20real"/);
+});
+
+function loadQueries() {
+  const result = buildSync({
+    entryPoints: ['sanity/lib/queries.ts'], bundle: true, write: false,
+    platform: 'node', format: 'cjs', packages: 'external',
+    external: ['@/sanity/lib/client'],
+  });
+  const compiled = new Module(path.join(process.cwd(), 'tests/queries.cjs'), module);
+  compiled.paths = module.paths;
+  const originalRequire = compiled.require.bind(compiled);
+  const records = ['plastic bag', '회색 자동차', 'flash', '100% real', 'literal%20slug'];
+  compiled.require = (id) => id === '@/sanity/lib/client'
+    ? { client: { fetch: async (_query, params) => records.includes(params.slug)
+      ? { title: params.slug, slug: { current: params.slug } } : null } }
+    : originalRequire(id);
+  compiled._compile(result.outputFiles[0].text, path.join(process.cwd(), 'tests/queries.cjs'));
+  return compiled.exports;
+}
+
+for (const [encoded, title] of [
+  ['plastic%20bag', 'plastic bag'],
+  ['%ED%9A%8C%EC%83%89%20%EC%9E%90%EB%8F%99%EC%B0%A8', '회색 자동차'],
+  ['flash', 'flash'],
+  ['100%25%20real', '100% real'],
+  ['literal%2520slug', 'literal%20slug'],
+]) {
+  test(`detail lookup decodes the route slug once: ${encoded}`, async () => {
+    const result = await loadQueries().getArtworkBySlug(encoded);
+    assert.equal(result?.title, title);
+  });
+}
+
+test('malformed URL encoding returns no artwork instead of throwing', async () => {
+  assert.equal(await loadQueries().getArtworkBySlug('broken%E0%A4%A'), null);
 });

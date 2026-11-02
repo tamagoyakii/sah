@@ -32,7 +32,7 @@ export default async function WorksPage() {
           return (
             <li key={artwork._id}>
               <Link
-                href={`/works/${artwork.slug.current}`}
+                href={`/works/${encodeURIComponent(artwork.slug.current)}`}
                 className='group relative aspect-square overflow-hidden bg-gray-100 block focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 outline-none'
                 aria-label={`${artwork.title}, ${artwork.date.slice(0, 4)}`}
               >
