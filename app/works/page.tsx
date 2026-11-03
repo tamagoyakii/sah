@@ -4,6 +4,9 @@ import SanityImage from '@/components/SanityImage';
 import { getArtworks } from '@/sanity/lib/queries';
 import { urlFor } from '@/sanity/lib/image';
 
+// Retain the query data cache without storing another HTML snapshot.
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'works',
   description: 'sculptures and installations by sah',

@@ -55,6 +55,8 @@ Next.js 16.1.1 passes encoded dynamic route segments to page code. Decode the se
 
 Server content queries use the Sanity origin API (`useCdn: false`) and retain Next.js data caching with `next.revalidate: 60`. This prevents revalidation from storing an already-stale Sanity API CDN response for another cache interval. Image delivery continues through the separate Sanity image CDN. Origin API requests count toward the API quota on data-cache misses/revalidations.
 
+Works and About export route `revalidate = 0`: they render per request without a Full Route/CloudFront HTML snapshot, while the queries' explicit 60-second data cache remains enabled. This avoids relying on the stale HTML regeneration path observed below. Per-request rendering increases compute and can add server startup/response latency. Artwork details were already dynamic. This policy does not provide immediate publication or a strict 60-second deadline.
+
 Time-based revalidation is request-driven stale-while-revalidate, so 60 seconds is a cache interval rather than a hard publish-to-page deadline. On 2026-11-03, a revision-guarded development title probe observed the origin API update immediately, API CDN update at 62 seconds, detail at 77 seconds and list at 139 seconds. After restoring the source document, the deployed list still intermittently returned the test title through the end of a 7-minute observation, including CloudFront cache misses with `x-nextjs-cache: STALE`. This indicates additional HTML regeneration/cache consistency behavior requiring separate verification; origin API freshness alone does not prove HTML freshness. No production content was mutated.
 
 ## Studio input validation

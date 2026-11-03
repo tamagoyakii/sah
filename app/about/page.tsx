@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { PortableText } from '@portabletext/react';
 import { getAbout } from '@/sanity/lib/queries';
 
+// Retain the query data cache without storing another HTML snapshot.
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'about',
   description: 'about sah — biography, exhibitions, and contact',
