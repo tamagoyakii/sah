@@ -184,7 +184,7 @@ test('listing preloads the first usable thumbnail after an imageless artwork', a
 
 test('first detail image has high fetch priority and an inline preview without prioritizing secondary images', async () => {
   const preview = 'data:image/jpeg;base64,/9j/2wBDAAYEBAUEBA';
-  const page = loadPage('app/works/[slug]/page.tsx', [validImage, validImage], 'flash', [], {imagePreview: preview});
+  const page = loadPage('app/works/[slug]/page.tsx', [{...validImage, lqip: preview}, validImage]);
   const html = render(await page.default({ params: Promise.resolve({ slug: 'flash' }) }));
   const images = html.match(/<img[^>]+>/g);
   assert.match(images[0], /fetchPriority="high"/);
@@ -200,4 +200,31 @@ test('missing preview metadata preserves a normal high priority detail image', a
   const image = html.match(/<img[^>]+>/)[0];
   assert.match(image, /fetchPriority="high"/);
   assert.doesNotMatch(image, /background-image:/);
+});
+
+
+test('each detail image uses its own inline preview while secondary images stay lazy', async () => {
+  const first = 'data:image/jpeg;base64,Zmlyc3Q=';
+  const second = 'data:image/jpeg;base64,c2Vjb25k';
+  const page = loadPage('app/works/[slug]/page.tsx', [
+    {_type: 'image'},
+    {...validImage, lqip: first},
+    {...validImage, lqip: second},
+    {...validImage, lqip: null},
+  ]);
+  const html = render(await page.default({ params: Promise.resolve({ slug: 'flash' }) }));
+  const images = html.match(/<img[^>]+>/g);
+  assert.equal(images.length, 3);
+  assert.match(images[0], /background-image:/);
+  assert.match(images[0], /Zmlyc3Q/);
+  assert.match(images[1], /background-image:/);
+  assert.match(images[1], /c2Vjb25k/);
+  assert.doesNotMatch(images[1], /Zmlyc3Q/);
+  assert.doesNotMatch(images[2], /background-image:/);
+  assert.match(images[0], /fetchPriority="high"/);
+  for (const image of images.slice(1)) {
+    assert.match(image, /loading="lazy"/);
+    assert.doesNotMatch(image, /fetchPriority="high"/);
+  }
+  assert.equal((html.match(/rel="preload"/g) || []).length, 1);
 });

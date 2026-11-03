@@ -11,8 +11,8 @@ export interface Artwork {
       _type: string;
     };
     alt?: string;
+    lqip?: string | null;
   }>;
-  imagePreview?: string | null;
   date: string;
   category?: string;
   medium?: string;
