@@ -12,6 +12,7 @@ export interface Artwork {
     };
     alt?: string;
   }>;
+  imagePreview?: string | null;
   date: string;
   category?: string;
   medium?: string;

@@ -33,6 +33,7 @@ const artworkBySlugQuery = `*[_type == "artwork" && slug.current == $slug][0] {
   title,
   slug,
   images,
+  "imagePreview": images[defined(asset._ref)][0].asset->metadata.lqip,
   date,
   category,
   medium,

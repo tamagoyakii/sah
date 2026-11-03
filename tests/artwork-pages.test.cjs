@@ -28,8 +28,8 @@ const artwork = {
   date: '2024-05-03', category: 'sculpture',
 };
 
-function loadPage(file, images, slug = 'flash', followingArtworks = []) {
-  const fixture = { ...artwork, images, slug: { current: slug } };
+function loadPage(file, images, slug = 'flash', followingArtworks = [], overrides = {}) {
+  const fixture = { ...artwork, images, slug: { current: slug }, ...overrides };
   const { outputFiles } = buildSync({
     stdin: {
       contents: `export const getArtworks = async () => [${JSON.stringify(fixture)}, ...${JSON.stringify(followingArtworks)}];
@@ -180,4 +180,24 @@ test('listing preloads the first usable thumbnail after an imageless artwork', a
   const html = render(await page.default());
   assert.match(html, /rel="preload"/);
   assert.doesNotMatch(html.match(/<img[^>]+>/)[0], /loading="lazy"/);
+});
+
+test('first detail image has high fetch priority and an inline preview without prioritizing secondary images', async () => {
+  const preview = 'data:image/jpeg;base64,/9j/2wBDAAYEBAUEBA';
+  const page = loadPage('app/works/[slug]/page.tsx', [validImage, validImage], 'flash', [], {imagePreview: preview});
+  const html = render(await page.default({ params: Promise.resolve({ slug: 'flash' }) }));
+  const images = html.match(/<img[^>]+>/g);
+  assert.match(images[0], /fetchPriority="high"/);
+  assert.match(images[0], /background-image:/);
+  assert.match(images[0], /data:image/);
+  assert.doesNotMatch(images[1], /fetchPriority="high"/);
+  assert.match(images[1], /loading="lazy"/);
+});
+
+test('missing preview metadata preserves a normal high priority detail image', async () => {
+  const page = loadPage('app/works/[slug]/page.tsx', [validImage]);
+  const html = render(await page.default({ params: Promise.resolve({ slug: 'flash' }) }));
+  const image = html.match(/<img[^>]+>/)[0];
+  assert.match(image, /fetchPriority="high"/);
+  assert.doesNotMatch(image, /background-image:/);
 });

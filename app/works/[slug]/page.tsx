@@ -77,6 +77,9 @@ export default async function ArtworkDetailPage({
                 height={dimensions.height}
                 className='max-w-5xl w-full h-auto'
                 preload={index === 0}
+                fetchPriority={index === 0 ? 'high' : undefined}
+                placeholder={index === 0 && artwork.imagePreview ? 'blur' : 'empty'}
+                blurDataURL={index === 0 ? artwork.imagePreview || undefined : undefined}
                 sizes='(min-width: 1088px) 1024px, (min-width: 1024px) calc(100vw - 64px), (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)'
               />;
             })}
