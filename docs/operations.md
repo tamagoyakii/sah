@@ -51,6 +51,12 @@ AWS currently documents managed Next.js support through version 15 ([support mat
 
 Next.js 16.1.1 passes encoded dynamic route segments to page code. Decode the segment exactly once before the GROQ slug lookup, and encode the stored slug when generating links. For example, `/works/plastic%20bag` must query the stored slug `plastic bag`. This also preserves Korean slugs and literal percent signs without renaming CMS records. Regression tests cover those cases and malformed URL encoding.
 
+## Content cache refresh
+
+Server content queries use the Sanity origin API (`useCdn: false`) and retain Next.js data caching with `next.revalidate: 60`. This prevents revalidation from storing an already-stale Sanity API CDN response for another cache interval. Image delivery continues through the separate Sanity image CDN. Origin API requests count toward the API quota on data-cache misses/revalidations.
+
+Time-based revalidation is request-driven stale-while-revalidate, so 60 seconds is a cache interval rather than a hard publish-to-page deadline. On 2026-11-03, a revision-guarded development title probe observed the origin API update immediately, API CDN update at 62 seconds, detail at 77 seconds and list at 139 seconds. After restoring the source document, the deployed list still intermittently returned the test title through the end of a 7-minute observation, including CloudFront cache misses with `x-nextjs-cache: STALE`. This indicates additional HTML regeneration/cache consistency behavior requiring separate verification; origin API freshness alone does not prove HTML freshness. No production content was mutated.
+
 ## Studio input validation
 
 Artwork image array members require a linked asset (`required().assetRequired()`), in addition to the existing nonempty image array, title, slug, and date requirements. Optional alt text remains optional. These are Studio publishing rules; clients writing directly to the Content Lake must validate their own mutations. Tests use Sanity’s actual validator in the Studio environment. On 2026-11-03, the one metadata-free empty image placeholder on published Flash was backed up and removed with a revision guard; the existing linked image was retained. All 3 development and 14 production published artworks passed the new rules.

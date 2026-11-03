@@ -6,5 +6,6 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  // Next.js caches server queries; revalidation must read the latest published data.
+  useCdn: false,
 })
