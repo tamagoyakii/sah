@@ -12,6 +12,8 @@ The frontend uses Next.js; content is stored in Sanity project `apwu4we2`.
 
 Copy `.env.example` to `.env.local` for a new checkout. Install the locked dependencies with `npm ci`, then run `npm run dev`. Studio is mounted at `/studio`; changes there affect the selected dataset.
 
+Studio's workspace title shows the connected dataset: `sah · 개발 (development)` or `sah · 운영 (production)`. Local and develop share the development dataset; the title identifies the content being edited rather than the frontend hostname. Standalone `sahhhhh.sanity.studio` uses production. Deploy it with `NEXT_PUBLIC_SANITY_DATASET=production` and select the existing `sahhhhh` hostname.
+
 Run `npm test` for artwork page regression checks. Run `npm run build` for the selected dataset, or `NEXT_PUBLIC_SANITY_DATASET=production npm run build` to verify production content explicitly. `NEXT_PUBLIC_*` values are included at build time; changing an Amplify variable requires a new build.
 
 ## Hosting recovery order

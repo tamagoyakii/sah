@@ -14,6 +14,11 @@ import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 
 export default defineConfig({
+  title: dataset === 'production'
+    ? 'sah · 운영 (production)'
+    : dataset === 'development'
+      ? 'sah · 개발 (development)'
+      : `sah · ${dataset}`,
   basePath: '/studio',
   projectId,
   dataset,
