@@ -28,6 +28,7 @@ export const artworkType = defineType({
       of: [
         {
           type: 'image',
+          validation: (rule) => rule.required().assetRequired(),
           options: {
             hotspot: true,
           },

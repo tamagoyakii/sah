@@ -48,3 +48,7 @@ AWS currently documents managed Next.js support through version 15 ([support mat
 ## Encoded artwork routes
 
 Next.js 16.1.1 passes encoded dynamic route segments to page code. Decode the segment exactly once before the GROQ slug lookup, and encode the stored slug when generating links. For example, `/works/plastic%20bag` must query the stored slug `plastic bag`. This also preserves Korean slugs and literal percent signs without renaming CMS records. Regression tests cover those cases and malformed URL encoding.
+
+## Studio input validation
+
+Artwork image array members require a linked asset (`required().assetRequired()`), in addition to the existing nonempty image array, title, slug, and date requirements. Optional alt text remains optional. These are Studio publishing rules; clients writing directly to the Content Lake must validate their own mutations. Tests use Sanity’s actual validator in the Studio environment. On 2026-11-03, the one metadata-free empty image placeholder on published Flash was backed up and removed with a revision guard; the existing linked image was retained. All 3 development and 14 production published artworks passed the new rules.
