@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import SanityImage from '@/components/SanityImage';
 import { notFound } from 'next/navigation';
 import { getArtworkBySlug } from '@/sanity/lib/queries';
-import { urlFor } from '@/sanity/lib/image';
+import { urlFor, getImageDimensions } from '@/sanity/lib/image';
 
 export async function generateMetadata({
   params,
@@ -66,18 +66,20 @@ export default async function ArtworkDetailPage({
         >
           {artwork.images
             ?.filter((image) => image.asset?._ref)
-            .map((image, index) => (
-              <Image
+            .map((image, index) => {
+              const src = urlFor(image).url();
+              const dimensions = getImageDimensions(src);
+              return <SanityImage
                 key={index}
-                src={urlFor(image).quality(90).url()}
+                src={src}
                 alt={image.alt || `${artwork.title} - ${index + 1}`}
-                width={1200}
-                height={800}
+                width={dimensions.width}
+                height={dimensions.height}
                 className='max-w-5xl w-full h-auto'
-                priority={index === 0}
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1024px'
-              />
-            ))}
+                preload={index === 0}
+                sizes='(min-width: 1088px) 1024px, (min-width: 1024px) calc(100vw - 64px), (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)'
+              />;
+            })}
         </section>
 
         {artwork.description && (

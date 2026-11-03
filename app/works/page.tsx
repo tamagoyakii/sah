@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
+import SanityImage from '@/components/SanityImage';
 import { getArtworks } from '@/sanity/lib/queries';
 import { urlFor } from '@/sanity/lib/image';
 
@@ -11,6 +11,9 @@ export const metadata: Metadata = {
 
 export default async function WorksPage() {
   const artworks = await getArtworks();
+  const firstImageIndex = artworks.findIndex((artwork) =>
+    artwork.images?.some((image) => image.asset?._ref),
+  );
 
   if (artworks.length === 0) {
     return (
@@ -26,7 +29,7 @@ export default async function WorksPage() {
         className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
         role='list'
       >
-        {artworks.map((artwork) => {
+        {artworks.map((artwork, index) => {
           const image = artwork.images?.find((image) => image.asset?._ref);
 
           return (
@@ -37,10 +40,12 @@ export default async function WorksPage() {
                 aria-label={`${artwork.title}, ${artwork.date.slice(0, 4)}`}
               >
                 {image && (
-                  <Image
+                  <SanityImage
                     src={urlFor(image).width(800).height(800).url()}
                     alt={image.alt || artwork.title}
                     fill
+                    sizes='(min-width: 1280px) 395px, (min-width: 1024px) calc(33.333vw - 32px), (min-width: 768px) calc(50vw - 32px), (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)'
+                    preload={index === firstImageIndex}
                     className='object-cover transition-all duration-300 group-hover:opacity-30 group-focus-visible:opacity-30'
                   />
                 )}

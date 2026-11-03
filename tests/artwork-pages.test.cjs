@@ -28,11 +28,11 @@ const artwork = {
   date: '2024-05-03', category: 'sculpture',
 };
 
-function loadPage(file, images, slug = 'flash') {
+function loadPage(file, images, slug = 'flash', followingArtworks = []) {
   const fixture = { ...artwork, images, slug: { current: slug } };
   const { outputFiles } = buildSync({
     stdin: {
-      contents: `export const getArtworks = async () => [${JSON.stringify(fixture)}];
+      contents: `export const getArtworks = async () => [${JSON.stringify(fixture)}, ...${JSON.stringify(followingArtworks)}];
         export const getArtworkBySlug = async () => (${JSON.stringify(fixture)});`,
       resolveDir: process.cwd(),
     },
@@ -134,4 +134,50 @@ for (const [encoded, title] of [
 
 test('malformed URL encoding returns no artwork instead of throwing', async () => {
   assert.equal(await loadQueries().getArtworkBySlug('broken%E0%A4%A'), null);
+});
+
+test('thumbnail srcset uses direct responsive Sanity URLs and preserves square crop', async () => {
+  const html = render(await loadPage('app/works/page.tsx', [validImage]).default());
+  assert.doesNotMatch(html, /\/_next\/image/);
+  assert.match(html, /sizes="[^"]*33[^"]*"/);
+  assert.match(html, /auto=format/);
+  assert.match(html, /fit=max/);
+  const image = html.match(/<img[^>]+>/)[0];
+  assert.doesNotMatch(image, /loading="lazy"/);
+  const srcset = image.match(/srcSet="([^"]+)"/)[1].replaceAll('&amp;', '&');
+  for (const candidate of srcset.split(', ')) {
+    const [src, descriptor] = candidate.split(' ');
+    const url = new URL(src);
+    assert.equal(url.hostname, 'cdn.sanity.io');
+    assert.equal(url.searchParams.get('w'), descriptor.slice(0, -1));
+    assert.equal(url.searchParams.get('h'), descriptor.slice(0, -1));
+    assert.equal(url.searchParams.get('rect'), '0,1448,5792,5792');
+  }
+});
+
+test('detail uses intrinsic portrait ratio, direct CDN and lazy secondary images', async () => {
+  const page = loadPage('app/works/[slug]/page.tsx', [validImage, validImage]);
+  const html = render(await page.default({ params: Promise.resolve({ slug: 'flash' }) }));
+  assert.doesNotMatch(html, /\/_next\/image/);
+  const images = html.match(/<img[^>]+>/g);
+  assert.match(images[0], /width="5792" height="8688"/);
+  assert.doesNotMatch(images[0], /loading="lazy"/);
+  assert.match(images[1], /loading="lazy"/);
+  assert.match(images[0], /sizes="[^"]*calc\(100vw - 32px\)/);
+});
+
+test('detail reserves the cropped aspect ratio while preserving source rect', async () => {
+  const cropped = {...validImage, crop: {top: 0.25, bottom: 0.25, left: 0, right: 0}};
+  const page = loadPage('app/works/[slug]/page.tsx', [cropped]);
+  const html = render(await page.default({ params: Promise.resolve({ slug: 'flash' }) }));
+  assert.match(html, /width="5792" height="4344"/);
+  assert.match(html, /rect=0(%2C|,)2172(%2C|,)5792(%2C|,)4344/);
+});
+
+
+test('listing preloads the first usable thumbnail after an imageless artwork', async () => {
+  const page = loadPage('app/works/page.tsx', [], 'empty', [{...artwork, _id: 'second', images: [validImage]}]);
+  const html = render(await page.default());
+  assert.match(html, /rel="preload"/);
+  assert.doesNotMatch(html.match(/<img[^>]+>/)[0], /loading="lazy"/);
 });

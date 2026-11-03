@@ -54,3 +54,9 @@ Next.js 16.1.1 passes encoded dynamic route segments to page code. Decode the se
 ## Studio input validation
 
 Artwork image array members require a linked asset (`required().assetRequired()`), in addition to the existing nonempty image array, title, slug, and date requirements. Optional alt text remains optional. These are Studio publishing rules; clients writing directly to the Content Lake must validate their own mutations. Tests use Sanity’s actual validator in the Studio environment. On 2026-11-03, the one metadata-free empty image placeholder on published Flash was backed up and removed with a revision guard; the existing linked image was retained. All 3 development and 14 production published artworks passed the new rules.
+
+## Artwork image delivery
+
+Artwork pages use `components/SanityImage.tsx`: Next Image supplies responsive markup, while Sanity CDN performs width/quality/format conversion directly (`auto=format`, `fit=max`, quality 75). Thumbnail sizes match the one/two/three-column grid and retain Sanity's crop rectangle. Detail images reserve the actual asset or crop aspect ratio. The first usable image is preloaded; later images retain lazy loading. Originals and CMS content are preserved. Open Graph images still use their separate 1200×630 URL.
+
+Verify `currentSrc` points directly to `cdn.sanity.io`, image loads succeed, and selected widths track the viewport. A smaller upstream source fetch is not the same as reduced browser transfer: the previous Next optimizer already compressed browser responses. Compare actual response bodies with the same Accept header; cached request timings alone do not establish LCP improvement.
